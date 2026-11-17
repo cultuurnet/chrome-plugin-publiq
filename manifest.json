@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "UDB Switcher",
+  "version": "1.0.0",
+  "description": "Schakel snel tussen de JSON-view, UiTdatabank en UiTinVlaanderen voor hetzelfde event, place of organizer.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.uitdatabank.be/*",
+        "https://*.uitinvlaanderen.be/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
