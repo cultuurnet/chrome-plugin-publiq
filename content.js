@@ -1,5 +1,6 @@
 (() => {
-  const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+  // Older ids use 8-4-4-16 instead of the standard 8-4-4-4-12 layout.
+  const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-(?:[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{16})';
 
   // UiTinVlaanderen uses one-letter type codes in its agenda URLs.
   const UIV_CODE = { events: 'e', places: 'l', organizers: 'o' };
@@ -37,11 +38,11 @@
 
   function detectResource(path) {
     const uiv = path.match(new RegExp(`/agenda/([elo])/[^/]+/(${UUID})`, 'i'));
-    if (uiv) return { type: UIV_TYPE[uiv[1].toLowerCase()], id: uiv[2].toLowerCase() };
+    if (uiv) return { type: UIV_TYPE[uiv[1].toLowerCase()], id: uiv[2] };
 
     // Singular forms are matched too because some UDB frontend routes use them.
     const udb = path.match(new RegExp(`/(event|place|organizer)s?/(${UUID})`, 'i'));
-    if (udb) return { type: `${udb[1].toLowerCase()}s`, id: udb[2].toLowerCase() };
+    if (udb) return { type: `${udb[1].toLowerCase()}s`, id: udb[2] };
 
     return null;
   }
