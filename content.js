@@ -11,23 +11,29 @@
       json: 'io.uitdatabank.be',
       udb: 'www.uitdatabank.be',
       uiv: 'www.uitinvlaanderen.be',
+      sapi: 'search.uitdatabank.be',
     },
     acc: {
       json: 'io-acc.uitdatabank.be',
       udb: 'acc.uitdatabank.be',
       uiv: 'acc.uitinvlaanderen.be',
+      sapi: 'search-acc.uitdatabank.be',
     },
     test: {
       json: 'io-test.uitdatabank.be',
       udb: 'test.uitdatabank.be',
       uiv: 'test.uitinvlaanderen.be',
+      sapi: 'search-test.uitdatabank.be',
     },
   };
+
+  // Sites that only appear as a link; the switcher is never shown on them.
+  const LINK_ONLY = new Set(['sapi']);
 
   function detectEnvironment(host) {
     for (const [env, hosts] of Object.entries(HOSTS)) {
       for (const [site, h] of Object.entries(hosts)) {
-        if (h === host) return { env, site };
+        if (h === host && !LINK_ONLY.has(site)) return { env, site };
       }
     }
     // Bare domains (without www) redirect to prod, so treat them as prod.
@@ -54,10 +60,21 @@
       udb: `https://${hosts.udb}/${type}/${id}`,
       // UiV ignores the slug and resolves on the id, so a placeholder is enough.
       uiv: `https://${hosts.uiv}/agenda/${UIV_CODE[type]}/slug/${id}`,
+      // The client id is asked for on click and added then; see askSapiClientId().
+      sapi: `https://${hosts.sapi}/${type}/?q=id:${id}`,
     };
   }
 
-  const LABELS = { json: 'JSON', udb: 'UiTdatabank', uiv: 'UiTinVlaanderen' };
+  function askSapiClientId(event) {
+    event.preventDefault();
+    const clientId = prompt('SAPI client id')?.trim();
+    if (!clientId) return;
+    const url = event.currentTarget.href.replace('?', `?clientId=${encodeURIComponent(clientId)}&`);
+    if (event.metaKey || event.ctrlKey) window.open(url);
+    else location.href = url;
+  }
+
+  const LABELS = { json: 'JSON', udb: 'UiTdatabank', uiv: 'UiTinVlaanderen', sapi: 'SAPI' };
   const STORAGE_KEY = 'udb-switcher-collapsed';
 
   let host;
@@ -128,12 +145,13 @@
       <div class="bar ${collapsed ? 'collapsed' : ''}">
         <span class="env" title="${resource.type} ${resource.id}">${environment.env}</span>
         ${Object.entries(links)
-          .map(([site, url]) => `<a href="${url}" class="${site === environment.site ? 'current' : ''}">${LABELS[site]}</a>`)
+          .map(([site, url]) => `<a href="${url}" data-site="${site}" class="${site === environment.site ? 'current' : ''}">${LABELS[site]}</a>`)
           .join('')}
         <button title="${collapsed ? 'Uitklappen' : 'Inklappen'}">${collapsed ? '‹' : '›'}</button>
       </div>
     `;
 
+    host.shadowRoot.querySelector('[data-site="sapi"]').addEventListener('click', askSapiClientId);
     host.shadowRoot.querySelector('button').addEventListener('click', () => {
       setCollapsed(!collapsed);
       lastHref = null;
