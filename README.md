@@ -9,6 +9,7 @@ On every page of `*.uitdatabank.be` or `*.uitinvlaanderen.be` that shows an even
 - **JSON**: `io(-env).uitdatabank.be/{type}/{id}`
 - **UiTdatabank**: `{env}.uitdatabank.be/{type}/{id}`
 - **UiTinVlaanderen**: `{env}.uitinvlaanderen.be/agenda/{e|l|o}/slug/{id}`
+- **SAPI**: `search(-env).uitdatabank.be/{type}/?clientId={clientId}&q=id:{id}` (asks for a client id when clicked; it is not stored)
 
 The bar shows the current environment (test, acc or prod) and always links within that same environment. Click the `›` button to collapse the bar.
 
@@ -48,3 +49,4 @@ The [release workflow](.github/workflows/release.yml) packages the extension wit
 ## Configuration
 
 The hostnames per environment are defined in the `HOSTS` object at the top of `content.js`. The type codes UiTinVlaanderen uses in its URLs (`e`, `l`, `o`) are defined in `UIV_CODE`.
+
